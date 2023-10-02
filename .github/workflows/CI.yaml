@@ -3,7 +3,7 @@ name: Node.js CI
 on:
   push:
     branches:
-      - main # Replace with your main branch name
+      - main 
 
 jobs:
   build:
