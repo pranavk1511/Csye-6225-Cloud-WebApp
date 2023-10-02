@@ -22,16 +22,27 @@ jobs:
       run: npm install
 
     - name: Install MySQL Client
+      run: |
+          sudo apt-get update -y
+          sudo apt-get install -y mysql-client
+
+    - name: Set up MySQL Database
+      env:
+        DB_HOST: localhost
+        DB_USER: root
+        DB_PASSWORD: root
+        DB_NAME: Assignment-3
+      run: |
+        mysql -u $DB_USER -p$DB_PASSWORD 
         run: |
           sudo apt-get update -y
           sudo apt-get install -y mysql-client
 
-      - name: Set up MySQL Database
-        env:
-          DB_HOST: localhost
-          DB_USER: root
-          DB_PASSWORD: root
-          DB_NAME: Assignment-3
-        run: |
-          mysql -u $DB_USER -p$DB_PASSWORD 
-
+    - name: Set up MySQL Database
+      env:
+        DB_HOST: localhost
+        DB_USER: root
+        DB_PASSWORD: root
+        DB_NAME: Assignment-3
+      run: |
+        mysql -u $DB_USER -p$DB_PASSWORD 
