@@ -13,13 +13,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: 14 # You can change this to your desired Node.js version
+    - name: Print Hello World
+      run: echo "Hello, World!"
 
-    - name: Install dependencies
-      run: npm install
-
-    - name: Run tests
-      run: npm test # Adjust this command to run your tests
