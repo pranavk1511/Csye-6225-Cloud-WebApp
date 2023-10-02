@@ -9,13 +9,7 @@ const csv = require('csv-parser');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 const { v4: uuidv4 } = require('uuid');
-app.use(bodyParser.json());
 
-
-// invalid routes 
-app.use('/',(req, res,) =>{   
-  res.status(404).end()
-})
 // set headers
 app.use((req, res, next) => {
     res.setHeader('Cache-Control', 'no-cache');
@@ -43,9 +37,14 @@ app.use('/healthz', (req, res, next) => {
       });
 });
 
+ // invalid routes 
+
+app.use(bodyParser.json());
+
 // Middleware to check authorization header
 app.use('/v1/assignments', async (req, res, next) => {
   const authHeader = req.header('Authorization');
+  console.log(authHeader)
   if (!authHeader) {
     return res.status(401).json({ message: 'Authorization header missing' });
   }
@@ -73,6 +72,8 @@ app.use('/v1/assignments', async (req, res, next) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+
 
 // Get Assignments by User 
 app.get('/v1/assignments', async (req, res) => {
@@ -103,6 +104,7 @@ app.get('/v1/assignments', async (req, res) => {
   }
 });
 
+// ...
 
 //Get Assignemtn by ID 
 app.get('/v1/assignments/:id', async (req, res) => {
@@ -121,6 +123,7 @@ app.get('/v1/assignments/:id', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 
 // create an assignemnt 
 app.post('/v1/assignments', (req, res) => {
@@ -241,6 +244,8 @@ app.delete('/v1/assignments/:id', async (req, res) => {
   }
 });
 
+
+
 // Function to read and process the CSV file
 function processCSVFile() {
   const filePath = './opt/users.csv'; // Replace with your file path
@@ -273,6 +278,10 @@ sequelize.sync().then(() => {
   .catch((error) => {
     console.error('Error syncing database:', error);
   });
+
+  app.use('/',(req, res,) =>{   
+    res.status(404).end()
+  })
 //print the port 
 app.listen(PORT, () => {
   console.log(`Server is running on port: ${PORT}`);
@@ -332,5 +341,4 @@ app.listen(PORT, () => {
 //     res.status(500).json({ message: 'Internal server error' });
 //   }
 // });
-
 module.exports = app
