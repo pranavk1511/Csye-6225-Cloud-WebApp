@@ -9,7 +9,14 @@ const Assignment = sequelize.define('Assignment', {
     },
     points: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      validate: {
+        isPointsValid(value) {
+          if (value < 1 || value > 10) {
+            throw new Error('Points must be between 1 and 10');
+          }
+        },
+      },
     },
     num_of_attempts: {
       type: DataTypes.INTEGER,

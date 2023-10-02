@@ -9,6 +9,9 @@ const csv = require('csv-parser');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 const { v4: uuidv4 } = require('uuid');
+const bcrypt = require('bcrypt');
+const saltRounds = 10
+
 
 // set headers
 app.use((req, res, next) => {
@@ -37,8 +40,6 @@ app.use('/healthz', (req, res, next) => {
       });
 });
 
- // invalid routes 
-
 app.use(bodyParser.json());
 
 // Middleware to check authorization header
@@ -48,17 +49,21 @@ app.use('/v1/assignments', async (req, res, next) => {
   if (!authHeader) {
     return res.status(401).json({ message: 'Authorization header missing' });
   }
+  
   // Decode the base64 authorization header
   const authData = Buffer.from(authHeader.split(' ')[1], 'base64').toString('utf-8');
   const [email, password] = authData.split(':');
-  const base64Password = Buffer.from(password).toString('base64');
-  // Check if email and password match in your database
+
+  // Check if email exists in your database
   try {
     const user = await User.findOne({ where: { email } });
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
-    const isPasswordValid = user.password === base64Password; // Assuming user.password is not hashed
+
+    // Compare the provided plaintext password with the hashed password in the database
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
@@ -75,12 +80,12 @@ app.use('/v1/assignments', async (req, res, next) => {
 
 
 
-// Get Assignments by User 
 app.get('/v1/assignments', async (req, res) => {
   try {
     const authHeader = req.header('Authorization');
     const authData = Buffer.from(authHeader.split(' ')[1], 'base64').toString('utf-8');
     const [email, password] = authData.split(':');
+
     // Find the user by email
     const user = await User.findOne({ where: { email } });
 
@@ -88,10 +93,10 @@ app.get('/v1/assignments', async (req, res) => {
       return res.status(401).json({ message: 'User not found' });
     }
 
-    // Find all assignments created by this user
-    const assignments = await Assignment.findAll({ where: { createdByUserId: email } });
+    // If the user exists, retrieve all assignments from the database
+    const assignments = await Assignment.findAll();
 
-    // If there are no assignments found for the user, return an empty array
+    // If there are no assignments found, return an empty array
     if (!assignments || assignments.length === 0) {
       return res.status(200).json([]);
     }
@@ -99,7 +104,7 @@ app.get('/v1/assignments', async (req, res) => {
     // Return the list of assignments as JSON
     res.status(200).json(assignments);
   } catch (error) {
-    console.error('Error fetching assignments by user:', error);
+    console.error('Error fetching assignments:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
@@ -135,8 +140,12 @@ app.post('/v1/assignments', (req, res) => {
       num_of_attempts,
       deadline
     } = req.body;
+
     // Validate the request body fields (you can add more validation here)
     if (!name || typeof name !== 'string' || !points || isNaN(points)) {
+      return res.status(400).json({ message: 'Invalid request body' });
+    }
+    if(points<0 || points>10){
       return res.status(400).json({ message: 'Invalid request body' });
     }
     const authHeader = req.header('Authorization');
@@ -152,7 +161,7 @@ app.post('/v1/assignments', (req, res) => {
       createdByUserId,
     })
       .then((assignment) => {
-        res.status(201).json({ message: 'Assignment created', assignment });
+        res.status(201).send();
       })
       .catch((error) => {
         console.error('Error creating assignment:', error);
@@ -251,15 +260,17 @@ function processCSVFile() {
   const filePath = './opt/users.csv'; // Replace with your file path
   fs.createReadStream(filePath)
       .pipe(csv())
-      .on('data', (row) => {
+      .on('data', async (row) => {
+          // Hash the password using bcrypt
+          const hashedPassword = await bcrypt.hash(row.password, saltRounds);
+
           // Create or update user accounts based on CSV data
-          const base64Password = Buffer.from(row.password).toString('base64'); 
           User.findOrCreate({
               where: { email: row.email },
               defaults: {
                   first_name: row.first_name,
                   last_name: row.last_name,
-                  password: base64Password,
+                  password: hashedPassword, // Store the hashed password
               },
           });
       })
@@ -287,58 +298,4 @@ app.listen(PORT, () => {
   console.log(`Server is running on port: ${PORT}`);
 });
 
-
-
-// app.get('/v1/assignments', async (req, res) => {
-//   try {
-//     // Fetch all assignments from the database
-//     const assignments = await Assignment.findAll();
-
-//     // Return the list of assignments as JSON
-//     res.status(200).json(assignments);
-//   } catch (error) {
-//     console.error('Error fetching assignments:', error);
-//     res.status(500).json({ message: 'Internal server error' });
-//   }
-// });
-// ...
-
-// app.put('/v1/assignments/:id', async (req, res) => {
-//   try {
-//     const assignmentId = req.params.id; // Get the assignment ID from the URL parameter
-//     const {
-//       name,
-//       points,
-//       num_of_attempts,
-//       deadline,
-//     } = req.body;
-
-//     // Validate the request body fields (you can add more validation here)
-//     if (!name || typeof name !== 'string' || !points || isNaN(points)) {
-//       return res.status(400).json({ message: 'Invalid request body' });
-//     }
-
-//     // Find the assignment by ID
-//     const assignment = await Assignment.findOne({ where: { id: assignmentId } });
-
-//     if (!assignment) {
-//       return res.status(404).json({ message: 'Assignment not found' });
-//     }
-
-//     // Update the assignment fields
-//     assignment.name = name;
-//     assignment.points = points;
-//     assignment.num_of_attempts = num_of_attempts;
-//     assignment.deadline = deadline;
-//     assignment.assignment_updated = assignment_updated;
-
-//     // Save the updated assignment
-//     await assignment.save();
-
-//     res.status(204).end(); // Return a 204 (No Content) response for success
-//   } catch (error) {
-//     console.error('Error updating assignment:', error);
-//     res.status(500).json({ message: 'Internal server error' });
-//   }
-// });
 module.exports = app
