@@ -32,15 +32,17 @@ jobs:
 
     - name: Start MySQL Server
       run: |
+       sudo service mysql start
+       sleep 10
+
+    - name: Check MySQL Server Status
+      run: |
       # Start MySQL server
       sudo service mysql start
       # Wait for MySQL server to fully start (adjust the sleep time as needed)
       sleep 10
 
-    - name: Check MySQL Server Status
-      run: |
-        # Check if MySQL server is running
-        sudo service mysql status
+
 
     
   
