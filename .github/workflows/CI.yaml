@@ -1,7 +1,7 @@
 name: Node.js CI
 
 on:
-  push:
+  pull_request:
     branches:
       - main
 
@@ -41,8 +41,9 @@ jobs:
     - name: Run Tests
       run : npm test
 
+# checking CI command on PR - 1 
 
-# checking CI command 
+
 
 
 
