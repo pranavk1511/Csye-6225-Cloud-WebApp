@@ -37,6 +37,9 @@ jobs:
         sudo systemctl start mysql
         sudo systemctl status mysql
         mysql -u root -p"${{ secrets.MY_SQL_PASSWORD }}" -e "CREATE DATABASE Assignment3;"
+    
+    - name: Run Tests
+      run : npm test
 
 
 
