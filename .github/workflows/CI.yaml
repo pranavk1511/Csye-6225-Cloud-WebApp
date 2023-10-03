@@ -29,18 +29,14 @@ jobs:
         echo "DB_NAME=Assignment-3" >> .env
         echo "PORT=3000" >> .env
         cat .env
-
-    - name: Start MySQL Server
+       
+   - name: configuremysql
       run: |
-       sudo service mysql start
-       sleep 10
-
-    - name: Check MySQL Server Status
-      run: |
-      # Start MySQL server
-      sudo service mysql start
-      # Wait for MySQL server to fully start (adjust the sleep time as needed)
-      sleep 10
+        sudo apt-get update
+        sudo apt-get install -y curl
+        sudo systemctl start mysql
+        sudo systemctl status mysql
+        mysql -u root -p "${{ secrets.MY_SQL_PASSWORD}}" -e "CREATE DATABASE Assignment-3"
 
 
 
