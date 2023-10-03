@@ -36,9 +36,10 @@ jobs:
         sudo apt-get install -y curl
         sudo systemctl start mysql
         sudo systemctl status mysql
-        mysql -e "CREATE DATABASE Assignment3;"
-
-
+        ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';
+        sudo systemctl restart mysql
+        mysql -u root -p root
+        mysql -u root -p'root' -e "CREATE DATABASE Assignment3;"
     
     - name: Run Tests
       run : npm test
