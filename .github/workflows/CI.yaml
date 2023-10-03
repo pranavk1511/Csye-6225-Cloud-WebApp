@@ -31,12 +31,13 @@ jobs:
         cat .env
        
     - name: configuremysql
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y curl
-          sudo systemctl start mysql
-          sudo systemctl status mysql
-          mysql -u root -p "${{ secrets.MY_SQL_PASSWORD}}" -e "CREATE DATABASE Assignment-3"
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y curl
+        sudo systemctl start mysql
+        sudo systemctl status mysql
+        mysql -u root -p "${{ secrets.MY_SQL_PASSWORD}}" -e "CREATE DATABASE Assignment-3"
+
 
 
 
