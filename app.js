@@ -12,6 +12,8 @@ const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 const saltRounds = 10
 
+app.use(bodyParser.json());
+
 
 // set headers
 app.use((req, res, next) => {
@@ -21,11 +23,14 @@ app.use((req, res, next) => {
 
 // health check 
 app.use('/healthz', (req, res, next) => {
+  console.log(req.body)
   if (req.method !== 'GET') {
       return res.status(405).send();
   }
-  
-  if (req.method === 'GET' && Object.keys(req.query).length > 0) {
+    if(Object.keys(req.body).length > 0){
+      return res.status(400).send();
+    }
+  if (req.method === 'GET' && Object.keys(req.query).length > 0 ) {
       return res.status(400).send();
   }
 
@@ -40,7 +45,7 @@ app.use('/healthz', (req, res, next) => {
       });
 });
 
-app.use(bodyParser.json());
+
 
 // Middleware to check authorization header
 app.use('/v1/assignments', async (req, res, next) => {
@@ -93,8 +98,10 @@ app.get('/v1/assignments', async (req, res) => {
       return res.status(401).json({ message: 'User not found' });
     }
 
-    // If the user exists, retrieve all assignments from the database
-    const assignments = await Assignment.findAll();
+
+    // Retrieve all assignments created by the authenticated user
+    const assignments = await Assignment.findAll({ where: { createdByUserId: email } });
+
 
     // If there are no assignments found, return an empty array
     if (!assignments || assignments.length === 0) {
@@ -115,19 +122,30 @@ app.get('/v1/assignments', async (req, res) => {
 app.get('/v1/assignments/:id', async (req, res) => {
   try {
     const assignmentId = req.params.id; // Get the assignment ID from the URL parameter
+    const authHeader = req.header('Authorization');
+    const authData = Buffer.from(authHeader.split(' ')[1], 'base64').toString('utf-8');
+    const [email, password] = authData.split(':');
+
+    // Find the assignment by ID
     const assignment = await Assignment.findOne({ where: { id: assignmentId } });
 
     if (!assignment) {
       return res.status(404).json({ message: 'Assignment not found' });
     }
 
-    // If the assignment exists, return its details as JSON
+    // Check if the authenticated user is the owner of the assignment
+    if (assignment.createdByUserId !== email) {
+      return res.status(403).json({ message: 'Permission denied. You are not the owner of this assignment.' });
+    }
+
+    // If the assignment is owned by the authenticated user, return its details as JSON
     res.status(200).json(assignment);
   } catch (error) {
     console.error('Error fetching assignment:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 
 
 // create an assignemnt 
@@ -280,7 +298,7 @@ function processCSVFile() {
 }
 
 
-
+//CI Check
 // Sync the database and create tables
 sequelize.sync().then(() => {
     console.log('Database synced successfully');
