@@ -29,8 +29,9 @@ jobs:
         echo "DB_NAME=Assignment-3" >> .env
         echo "PORT=3000" >> .env
         cat .env
-    -name : Display Tree
-      run: tree
+
+    - name : Display Tree
+
 
     
   
