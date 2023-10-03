@@ -15,7 +15,7 @@ const saltRounds = 10
 app.use(bodyParser.json());
 
 
-// set headers
+// set headers as per req
 app.use((req, res, next) => {
     res.setHeader('Cache-Control', 'no-cache');
     next();
