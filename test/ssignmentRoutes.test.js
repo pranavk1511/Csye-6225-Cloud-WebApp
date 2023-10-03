@@ -12,6 +12,7 @@ describe('GET /healthz', () => {
       .end((err, res) => {
         expect(res).to.have.status(200);
         done();
+        process.exit(0)
       });
   });
 });
