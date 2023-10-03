@@ -30,9 +30,6 @@ jobs:
         echo "PORT=3000" >> .env
         cat .env
 
-    - name : Display Tree
-
-
     
   
 
