@@ -36,13 +36,15 @@ jobs:
         sudo apt-get install -y curl
         sudo systemctl start mysql
         sudo systemctl status mysql
-        mysql -u root -p"root" -e "CREATE DATABASE Assignment3;"
-   
+        mysql -u root -p"root" -e "CREATE DATABASE  Assignment3;"
+
+  #  asd
+
     - name: Run Tests
       run : npm test
     
-
 # checking CI command on PR - 1.2.3
+
 
 
 
