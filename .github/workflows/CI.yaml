@@ -42,7 +42,7 @@ jobs:
       run : npm test
     
 
-# checking CI command on PR - 1
+# checking CI command on PR - 1.2.3
 
 
 
