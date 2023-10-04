@@ -36,10 +36,6 @@ jobs:
         sudo apt-get install -y curl
         sudo systemctl start mysql
         sudo systemctl status mysql
-        DEFAULT_PASS=$(sudo cat ../../var/log/mysqld.log | grep "A temporary password" | awk '{print $13}')
-
-        echo %DEFAULT_PASS%
-        
         yes | sudo yum install expect
 
         SECURE_MYSQL=$(expect -c "
@@ -48,10 +44,10 @@ jobs:
           spawn sudo mysql -u root -p
 
           expect \"Enter password:\"
-          send \"$DEFAULT_PASS\r\"
+          send \"root\r\"
 
           expect \"mysql>\"
-          send \"ALTER USER 'root'@'localhost' IDENTIFIED BY 'Abcde@12345';\r\"
+          send \"ALTER USER 'root'@'localhost' IDENTIFIED BY 'pranav';\r\"
 
           expect \"mysql>\"
           send \"CREATE DATABASE webapp2;\r\"
@@ -63,7 +59,7 @@ jobs:
           ")
 
         echo "$SECURE_MYSQL"
-        mysql -u root -p"${{secrets.MY_SQL_PASSWORD}}" -e "CREATE DATABASE Assignment3;"
+        mysql -u root -p"pranav" -e "CREATE DATABASE Assignment3;"
 
     
     - name: Run Tests
