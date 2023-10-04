@@ -36,38 +36,13 @@ jobs:
         sudo apt-get install -y curl
         sudo systemctl start mysql
         sudo systemctl status mysql
-        
-        yes | sudo install expect
-
-        SECURE_MYSQL=$(expect -c "
-
-          set timeout 10
-          spawn sudo mysql -u root -p
-
-          expect \"Enter password:\"
-          send \"root\r\"
-
-          expect \"mysql>\"
-          send \"ALTER USER 'root'@'localhost' IDENTIFIED BY 'pranav';\r\"
-
-          expect \"mysql>\"
-          send \"CREATE DATABASE webapp2;\r\"
-
-          expect \"mysql>\"
-          send \"exit\r\"
-
-          expect eof
-          ")
-
-        echo "$SECURE_MYSQL"
-        mysql -u root -p"pranav" -e "CREATE DATABASE Assignment3;"
-
-    
+        mysql -u root -p"${{ secrets.MY_SQL_PASSWORD }}" -e "CREATE DATABASE Assignment3;"
+   
     - name: Run Tests
       run : npm test
     
 
-# checking CI command on PR - 1,2
+# checking CI command on PR - 1
 
 
 
