@@ -43,11 +43,27 @@ app.use('/healthz', (req, res, next) => {
           res.status(503).end();
       });
 });
+const checkDbConnectionMiddleware = async (req, res, next) => {
+  try {
+    await sequelize.authenticate();
+    next(); // Proceed to the next middleware or route if the database is connected
+  } catch (error) {
+    console.error('Database connection error:', error);
+    res.status(503).json({ message: 'Service Unavailable. Database connection is not established.' });
+  }
+};
 
+// Apply the checkDbConnectionMiddleware to all routes
+app.use(checkDbConnectionMiddleware);
 
 
 // Middleware to check authorization header
 app.use('/v1/assignments', async (req, res, next) => {
+  console.log(req.method)
+  if (req.method === 'PATCH'){
+      return res.status(405).send()
+  }
+
   const authHeader = req.header('Authorization');
   console.log(authHeader)
   if (!authHeader) {
@@ -217,7 +233,21 @@ app.put('/v1/assignments/:id', async (req, res) => {
     if (!name || typeof name !== 'string' || !points || isNaN(points)) {
       return res.status(400).json({ message: 'Invalid request body' });
     }
-
+    if(points<0 || points>10){
+      return res.status(400).json({ message: 'Points must be between 1 & 10 ' });
+    }
+    if(num_of_attempts<1){
+      return res.status(400).json({ message: 'There Should be atleast one attempt' });
+    }
+    if (!Number.isInteger(num_of_attempts)) {
+      return res.status(400).json({ message: 'Number of attempts must be an integer' });
+    }
+    if (!deadline || isNaN(Date.parse(deadline))) {
+      return res.status(400).json({ message: 'Invalid deadline format' });
+    }
+    if(Number.isInteger(deadline)){
+      return res.status(400).json({ message: 'Invalid deadline format' });
+    }
     // Find the assignment by ID
     const assignment = await Assignment.findOne({ where: { id: assignmentId } });
 
@@ -233,7 +263,7 @@ app.put('/v1/assignments/:id', async (req, res) => {
     if (assignment.createdByUserId !== email) {
       return res.status(403).json({ message: 'Permission denied. You are not the owner of this assignment.' });
     }
-
+    
     // Update the assignment fields
     assignment.name = name;
     assignment.points = points;
