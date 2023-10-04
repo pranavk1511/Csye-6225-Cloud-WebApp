@@ -24,11 +24,12 @@ jobs:
         
     - name: Display .env file
       run: |
-        echo "DB_USER=root" >> .env
-        echo "DB_PASSWORD=root" >> .env
-        echo "DB_NAME=Assignment3" >> .env
-        echo "PORT=3000" >> .env
+        echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+        echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+        echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+        echo "PORT=${{ secrets.PORT }}" >> .env
         cat .env
+
        
     - name: configuremysql
       run: |
