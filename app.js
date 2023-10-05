@@ -115,9 +115,32 @@ app.get('/v1/assignments', async (req, res) => {
     if (!assignments || assignments.length === 0) {
       return res.status(200).json([]);
     }
+    const responseAssignments = assignments.map((assignment) => {
+      const {
+        id,
+        name,
+        points,
+        num_of_attempts,
+        deadline,
+        assignment_created,
+        assignment_updated,
+        // Add other fields you want to include in the response here
+      } = assignment;
+      return {
+        id,
+        name,
+        points,
+        num_of_attempts,
+        deadline,
+        assignment_created: assignment_created.toISOString(), // Convert to ISO string
+        assignment_updated: assignment_updated.toISOString(), // Convert to ISO string
+        // Add other fields you want to include in the response here
+      };
+    });
+
 
     // Return the list of assignments as JSON
-    res.status(200).json(assignments);
+    res.status(200).json(responseAssignments);
   } catch (error) {
     console.error('Error fetching assignments:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -146,7 +169,17 @@ app.get('/v1/assignments/:id', async (req, res) => {
     if (!assignment) {
       return res.status(404).json({ message: 'Assignment not found' });
     }
-    res.status(200).json(assignment);
+    const responseObject = {
+      id: assignment.id,
+      name: assignment.name,
+      points: assignment.points,
+      num_of_attempts: assignment.num_of_attempts,
+      deadline: assignment.deadline,
+      assignment_created: assignment.assignment_created,
+      assignment_updated: assignment.assignment_updated,
+      // Exclude 'createdByUserId' field
+    };
+    res.status(200).json(responseObject);
   } catch (error) {
     console.error('Error fetching assignment:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -200,9 +233,21 @@ app.post('/v1/assignments', (req, res) => {
       num_of_attempts,
       deadline,
       createdByUserId,
+      assignment_created: new Date(), // Set the current date and time
+      assignment_updated: new Date(),
     })
       .then((assignment) => {
-        res.status(201).send();
+        const responseAssignment = {
+          id: assignment.id,
+          name: assignment.name,
+          points: assignment.points,
+          num_of_attempts: assignment.num_of_attempts,
+          deadline: assignment.deadline,
+          assignment_created: assignment.assignment_created.toISOString(), // Convert to ISO string
+          assignment_updated: assignment.assignment_updated.toISOString()
+          // Add other fields you want to include in the response here
+        };
+        res.status(201).json(responseAssignment);
       })
       .catch((error) => {
         console.error('Error creating assignment:', error);

@@ -7,5 +7,25 @@ ssh -i ~/.ssh/DigitalOcean root@"yourip"
 - sch you web-app
 scp -i /Users/pranavkulkarni/.ssh/DigitalOcean -r /Users/pranavkulkarni/Desktop/CloudAssignmentGithub/Web-App-Local root@134.209.78.246:/root/Demo
 
+-MARIA DB 
+
+sudo apt install mariadb-server mariadb-client
+sudo systemctl start mariadb
+sudo systemctl enable mariadb
+mysql -u root -p
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'pranav';
+FLUSH PRIVILEGES
+CREATE DATABASE Assignment3;
+SHOW DATABASES;
 -install node and npm 
 
+sudo apt install nodejs npm 
+
+--start stop maria db 
+
+sudo systemctl stop mariadb
+sudo systemctl start  mariadb
+
+-- change .env
+
+vi .env
