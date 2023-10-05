@@ -1,6 +1,11 @@
 # Web-App
 
+Setup On Local
+1. Set Up your MySql
+2. Set Download Dependenceies
+3. nodemon app.js 
 
+### Steps for Digital Ocean Droplet  
 -ssh into  your VM(Droplet)
 ssh -i ~/.ssh/DigitalOcean root@"yourip"
 
