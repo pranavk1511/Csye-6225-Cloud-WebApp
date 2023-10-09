@@ -8,7 +8,7 @@ const expect = chai.expect;
 describe('GET /healthz', () => {
   it('should return status code 200', (done) => {
     chai.request(app)
-      .get('/health')
+      .get('/healthz')
       .end((err, res) => {
         expect(res).to.have.status(200);
         done();
