@@ -8,14 +8,20 @@ const expect = chai.expect;
 describe('GET /healthz', () => {
   it('should return status code 200', (done) => {
     chai.request(app)
-      .get('/healt')
+      .get('/health')
       .end((err, res) => {
         expect(res).to.have.status(200);
         done();
         process.exit(0)
       });
   });
+  afterEach(function() {
+    if (this.currentTest.state === 'failed') {
+      process.exit(1);
+    }
+  });
 });
+
 
 
 
