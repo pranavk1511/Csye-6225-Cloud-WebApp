@@ -98,6 +98,9 @@ app.use('/v1/assignments', async (req, res, next) => {
   }
 });
 
+// app.get('/v1/assignments/', async (req, res, next) => {
+//   return res.status(405).send()
+// });
 
 //All users can see all assignemts 
 app.get('/v1/assignments', async (req, res) => {
