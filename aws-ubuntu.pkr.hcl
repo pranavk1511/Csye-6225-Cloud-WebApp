@@ -12,8 +12,8 @@ source "amazon-ebs" "debian" {
   profile       = "dev_cli"
   source_ami    = "ami-071175b60c818694f"
   instance_type = "t2.micro"
-  vpc_id        = "vpc-055b7ed82be744193"
-  subnet_id     = "subnet-0edc53e23cb32476a"
+  vpc_id        = "vpc-01460d8972e0a86c9"
+  subnet_id     = "subnet-0008bc1660190abb3"
   region        = "us-west-1"
   ssh_username  = "admin"
   ami_users = [
