@@ -1,5 +1,6 @@
 name: Packer Template Validation
 
+
 on:
   pull_request:
     branches:
