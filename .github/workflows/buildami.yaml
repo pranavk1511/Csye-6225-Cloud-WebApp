@@ -3,7 +3,8 @@ name: Build AMI
 on :
   push:
     branches:
-      -main
+      - main
+
 jobs:
   build-ami:
     runs-on: ubuntu-latest
