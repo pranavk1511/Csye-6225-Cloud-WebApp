@@ -38,13 +38,12 @@ build {
       "sudo DEBIAN_FRONTEND=noninteractive node -v",
       "npm -v",
       "sudo DEBIAN_FRONTEND=noninteractive apt install -y unzip",
-      # "sudo unzip WebAppRenamed -d ~/WebApp",
-      # "cat <<EOF > ~/WebApp/.env",
-      # "DB_HOST=127.0.0.1",
-      # "DB_USER=root",
-      # "DB_PASSWORD=root",
-      # "PORT=3000",
-      # "EOF",
+      "sudo unzip WebAppRenamed -d WebApp",
+      "sudo mysql",
+      "ALTER USER 'root'@'localhost' IDENTIFIED BY 'root' ",
+      "FLUSH PRIVILEGES;",
+      "CREATE DATABASE Assignment3;",
+      "EXIT;",
     "echo foo"]
   }
 }
