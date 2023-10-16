@@ -21,9 +21,9 @@ build {
   sources = [
     "source.amazon-ebs.debian"
   ]
-  provisioner "file"{
-   source      = "WebApp.zip"  # Local path to the file you want to copy
-   destination = "~/WebAppRenamed"
+  provisioner "file" {
+    source      = "webapp.zip" # Local path to the file you want to copy
+    destination = "~/WebAppRenamed"
   }
   provisioner "shell" {
     inline = [
@@ -42,5 +42,4 @@ build {
       # "EOF",
     "echo foo"]
   }
-  
 }

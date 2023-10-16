@@ -2,14 +2,21 @@ name: Packer Template Validation
 
 on:
   pull_request:
+    branches:
+      - main
 
 jobs:
-  validate:
+  Validation:
     runs-on: ubuntu-latest
 
     steps:
+
     - name: Check out code
       uses: actions/checkout@v2
+
+    - name: Create Zip Archive
+      run: |
+        zip -r webapp.zip ./
 
     - name: Set up Packer
       run: |
@@ -19,21 +26,16 @@ jobs:
         sudo mv packer /usr/local/bin/
       shell: bash
 
+    - name: Initialize Packer
+      run: packer init aws-ubuntu.pkr.hcl
+
     - name: Validate Packer Template
+      run: packer validate aws-ubuntu.pkr.hcl
+
+    - name: Check Formatting
       run: |
-        packer validate path/to/your/packer-template.json
-      continue-on-error: true
+        if ! packer fmt -check aws-ubuntu.pkr.hcl; then
+          echo "You Have to Fmt the file before "
+          exit 1
+        fi
 
-  merge-check:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Check for validation failure
-      id: validation-check
-      run: echo "Validation failed if this step runs"
-
-    - name: Prevent PR Merge on Validation Failure
-      if: steps.validation-check.conclusion == 'failure'
-      run: |
-        echo "Validation failed. You cannot merge this PR until the Packer template is properly formatted."
-        exit 1
