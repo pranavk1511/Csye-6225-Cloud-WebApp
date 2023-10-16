@@ -31,19 +31,8 @@ build {
     destination = "~/WebAppRenamed"
   }
   provisioner "shell" {
-    inline = [
-      "sudo apt-get update",
-      "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs npm",
-      "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y mariadb-server mariadb-client",
-      "sudo DEBIAN_FRONTEND=noninteractive node -v",
-      "npm -v",
-      "sudo DEBIAN_FRONTEND=noninteractive apt install -y unzip",
-      "sudo unzip WebAppRenamed -d WebApp",
-      "sudo mysql",
-      "sudo mysql --execute='ALTER USER ''root''@''localhost'' IDENTIFIED BY ''root'';'",
-      "sudo mysql --execute='FLUSH PRIVILEGES;' ",
-      "sudo mysql --execute='CREATE DATABASE Assignment3;' ",
-      "sudo mysql --execute='EXIT;'",
-    "echo foo"]
+    scripts = [
+      "./setup.sh",
+    ]
   }
 }
