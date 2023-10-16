@@ -10,12 +10,17 @@ packer {
 source "amazon-ebs" "debian" {
   ami_name      = "Ami_${formatdate("YYYY_MM_DD_hh_mm_ss", timestamp())}"
   profile       = "dev_cli"
-  source_ami    = "ami-06db4d78cb1d3bbf9" # Replace with the correct Debian 12 AMI ID
+  source_ami    = "ami-06db4d78cb1d3bbf9"
   instance_type = "t2.micro"
   vpc_id        = "vpc-055b7ed82be744193"
   subnet_id     = "subnet-0edc53e23cb32476a"
   region        = "us-east-1"
   ssh_username  = "admin"
+  ami_users = [
+    "026310524371",
+    "009251910612"
+  ]
+
 }
 build {
   sources = [

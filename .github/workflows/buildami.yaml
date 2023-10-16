@@ -10,7 +10,8 @@ jobs:
 
     steps:
       - name: Checkout code
-      uses: actions/checkout@v2
+        uses: actions/checkout@v2
+
       
       - name: Display .env file
         run: |
@@ -25,15 +26,16 @@ jobs:
         zip -r webapp.zip ./
 
       - name: Set up Packer
-      run: |
-        wget https://releases.hashicorp.com/packer/1.7.3/packer_1.7.3_linux_amd64.zip
-        unzip packer_1.7.3_linux_amd64.zip
-        chmod +x packer
-        sudo mv packer /usr/local/bin/
-      shell: bash
+        run: |
+          wget https://releases.hashicorp.com/packer/1.7.3/packer_1.7.3_linux_amd64.zip
+          unzip packer_1.7.3_linux_amd64.zip
+          chmod +x packer
+          sudo mv packer /usr/local/bin/
+        shell: bash
 
       - name: Initialize Packer
-      run: packer init aws-ubuntu.pkr.hcl
+        run: packer init aws-ubuntu.pkr.hcl
+
     
       - name: Build AMI
         env:
