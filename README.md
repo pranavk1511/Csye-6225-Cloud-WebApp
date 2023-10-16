@@ -37,5 +37,5 @@ vi .env
 
 
 
-// vi check -2 
+// ami buid check -1 
 
