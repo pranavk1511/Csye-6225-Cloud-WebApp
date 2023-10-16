@@ -40,9 +40,9 @@ build {
       "sudo DEBIAN_FRONTEND=noninteractive apt install -y unzip",
       "sudo unzip WebAppRenamed -d WebApp",
       "sudo mysql",
-      "ALTER USER 'root'@'localhost' IDENTIFIED BY 'root' ",
-      "FLUSH PRIVILEGES;",
-      "CREATE DATABASE Assignment3;",
+      "sudo mysql --execute= 'ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';' ",
+      "sudo mysql --execute='FLUSH PRIVILEGES;' ",
+      "sudo mysql --execute='CREATE DATABASE Assignment3;' ",
       "EXIT;",
     "echo foo"]
   }
