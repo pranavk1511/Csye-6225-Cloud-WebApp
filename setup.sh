@@ -24,14 +24,11 @@ sudo unzip WebAppRenamed -d WebApp
 # Start MySQL shell
 sudo mysql
 
-# Alter the MySQL user 'root' at 'localhost' and set the password to 'root'
-sudo mysql --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';"
 
-# Flush MySQL privileges
-sudo mysql --execute="FLUSH PRIVILEGES;"
 
-# Create a MySQL database named Assignment3
-sudo mysql --execute="CREATE DATABASE Assignment3;"
+sudo mysql --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY 'root'; FLUSH PRIVILEGES; CREATE DATABASE Assignment3;"
+
+
 
 # Exit MySQL shell
 sudo mysql --execute="EXIT;"
