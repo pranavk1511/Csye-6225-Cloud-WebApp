@@ -36,4 +36,6 @@ sudo systemctl start  mariadb
 vi .env
 
 
-// vi check 
+
+// vi check -2 
+
