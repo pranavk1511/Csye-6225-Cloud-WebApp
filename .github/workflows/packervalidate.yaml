@@ -1,0 +1,41 @@
+name: Packer Template Validation
+
+on:
+  pull_request:
+    paths:
+      - '**.json'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Set up Packer
+      run: |
+        wget https://releases.hashicorp.com/packer/1.7.3/packer_1.7.3_linux_amd64.zip
+        unzip packer_1.7.3_linux_amd64.zip
+        chmod +x packer
+        sudo mv packer /usr/local/bin/
+      shell: bash
+
+    - name: Validate Packer Template
+      run: |
+        packer validate path/to/your/packer-template.json
+      continue-on-error: true
+
+  merge-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check for validation failure
+      id: validation-check
+      run: echo "Validation failed if this step runs"
+
+    - name: Prevent PR Merge on Validation Failure
+      if: steps.validation-check.conclusion == 'failure'
+      run: |
+        echo "Validation failed. You cannot merge this PR until the Packer template is properly formatted."
+        exit 1

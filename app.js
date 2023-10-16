@@ -7,8 +7,8 @@ const sequelize = require('./model/database');
 const fs = require('fs');
 const csv = require('csv-parser');
 const bodyParser = require('body-parser');
+bodyParser.json("strict")
 require('dotenv').config();
-const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 const saltRounds = 10
 
@@ -26,6 +26,7 @@ app.use('/healthz', (req, res, next) => {
   if (req.method !== 'GET') {
       return res.status(405).send();
   }
+  
     if(Object.keys(req.body).length > 0){
       return res.status(400).send();
     }
