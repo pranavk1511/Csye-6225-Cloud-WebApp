@@ -34,3 +34,6 @@ sudo systemctl start  mariadb
 -- change .env
 
 vi .env
+
+
+// vi check 
