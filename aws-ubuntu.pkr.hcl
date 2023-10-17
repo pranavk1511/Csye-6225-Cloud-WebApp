@@ -1,3 +1,45 @@
+
+
+variable "profile" {
+  type    = string
+  default = "dev_cli"
+}
+
+variable "source_ami" {
+  type    = string
+  default = "ami-06db4d78cb1d3bbf9"
+}
+
+variable "instance_type" {
+  type    = string
+  default = "t2.micro"
+}
+
+variable "vpc_id" {
+  type    = string
+  default = "vpc-055b7ed82be744193"
+}
+
+variable "subnet_id" {
+  type    = string
+  default = "subnet-0edc53e23cb32476a"
+}
+
+variable "region" {
+  type    = string
+  default = "us-east-1"
+}
+
+variable "ssh_username" {
+  type    = string
+  default = "admin"
+}
+
+variable "ami_users" {
+  type    = list(string)
+  default = ["026310524371", "009251910612"]
+}
+
 packer {
   required_plugins {
     amazon = {
@@ -9,30 +51,25 @@ packer {
 
 source "amazon-ebs" "debian" {
   ami_name      = "Ami_${formatdate("YYYY_MM_DD_hh_mm_ss", timestamp())}"
-  profile       = "dev_cli"
-  source_ami    = "ami-06db4d78cb1d3bbf9"
-  instance_type = "t2.micro"
-  vpc_id        = "vpc-055b7ed82be744193"
-  subnet_id     = "subnet-0edc53e23cb32476a"
-  region        = "us-east-1"
-  ssh_username  = "admin"
-  ami_users = [
-    "026310524371",
-    "009251910612"
-  ]
-
+  profile       = var.profile
+  source_ami    = var.source_ami
+  instance_type = var.instance_type
+  vpc_id        = var.vpc_id
+  subnet_id     = var.subnet_id
+  region        = var.region
+  ssh_username  = var.ssh_username
+  ami_users     = var.ami_users
 }
+
 build {
-  sources = [
-    "source.amazon-ebs.debian"
-  ]
+  sources = ["source.amazon-ebs.debian"]
+
   provisioner "file" {
     source      = "webapp.zip" # Local path to the file you want to copy
     destination = "~/WebAppRenamed"
   }
+
   provisioner "shell" {
-    scripts = [
-      "./setup.sh",
-    ]
+    scripts = ["./setup.sh"]
   }
 }
