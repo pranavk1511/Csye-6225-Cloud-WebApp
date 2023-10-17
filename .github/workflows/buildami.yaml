@@ -24,6 +24,7 @@ jobs:
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
           echo "PORT=${{ secrets.PORT }}" >> .env
           cat .env 
+          
       - name: configuremysql
         run: |
           sudo apt-get update
