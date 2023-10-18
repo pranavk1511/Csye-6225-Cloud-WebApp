@@ -39,3 +39,5 @@ vi .env
 
 // ami buid check -1 
 // ami build check -2 
+// ami buid check -3 
+
