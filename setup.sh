@@ -35,6 +35,8 @@ sudo mysql --execute="EXIT;"
 
 # Uninstall git 
 sudo apt-get remove git
+sudo apt-get purge git
+sudo apt-get autoremove
 # Display a message
 echo "foo"
 
