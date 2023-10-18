@@ -34,9 +34,9 @@ sudo mysql --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY 'root'; FLUSH 
 sudo mysql --execute="EXIT;"
 
 # Uninstall git 
-sudo apt-get remove git
-sudo apt-get purge git
-sudo apt-get autoremove
+sudo apt-get remove -y git
+
+
 # Display a message
 echo "foo"
 
