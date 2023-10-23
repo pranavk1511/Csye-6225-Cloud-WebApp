@@ -1,5 +1,3 @@
-
-
 sudo cp /tmp/nodeserver.service /lib/systemd/system/nodeserver.service
 
 
