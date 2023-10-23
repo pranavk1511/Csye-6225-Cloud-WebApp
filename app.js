@@ -376,7 +376,7 @@ app.delete('/v1/assignments/:id', async (req, res) => {
 
 // Function to read and process the CSV file
 function processCSVFile() {
-  const filePath = './opt/users.csv'; // Replace with your file path
+  const filePath = 'opt/users.csv'; // Replace with your file path
   fs.createReadStream(filePath)
       .pipe(csv())
       .on('data', async (row) => {
