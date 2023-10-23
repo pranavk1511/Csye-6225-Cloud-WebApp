@@ -69,7 +69,13 @@ build {
     destination = "~/WebAppRenamed"
   }
 
+  provisioner "file" {
+    source      = "server.service"
+    destination = "/tmp/nodeserver.service"
+  }
   provisioner "shell" {
-    scripts = ["./setup.sh"]
+    scripts = [
+      "./setup.sh",
+    "./autostart.sh"]
   }
 }

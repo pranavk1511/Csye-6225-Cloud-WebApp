@@ -34,6 +34,8 @@ app.use('/healthz', (req, res, next) => {
       return res.status(400).send();
   }
 
+  
+
   sequelize
       .authenticate()
       .then(() => {
@@ -44,6 +46,8 @@ app.use('/healthz', (req, res, next) => {
           res.status(503).end();
       });
 });
+
+
 const checkDbConnectionMiddleware = async (req, res, next) => {
   try {
     await sequelize.authenticate();
@@ -378,7 +382,6 @@ function processCSVFile() {
       .on('data', async (row) => {
           // Hash the password using bcrypt
           const hashedPassword = await bcrypt.hash(row.password, saltRounds);
-
           // Create or update user accounts based on CSV data
           User.findOrCreate({
               where: { email: row.email },
@@ -397,7 +400,8 @@ function processCSVFile() {
 
 //CI Check
 // Sync the database and create tables
-sequelize.sync().then(() => {
+
+sequelize.sync().then(() => {  
     console.log('Database synced successfully');
     processCSVFile();
   })
