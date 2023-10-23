@@ -70,8 +70,8 @@ build {
   }
 
   provisioner "file" {
-    source      = "server.service"
-    destination = "nodeserver.service"
+    source      = "nodeserver.service"
+    destination = "/tmp/nodeserver.service"
   }
   provisioner "shell" {
     scripts = [

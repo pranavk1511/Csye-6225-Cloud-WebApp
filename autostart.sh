@@ -1,4 +1,7 @@
-sudo cp server.service /lib/systemd/system/nodeserver.service
+
+
+sudo cp /tmp/nodeserver.service /lib/systemd/system/nodeserver.service
+
 
 echo "Enabling the REST API Service"
 sudo systemctl enable nodeserver
