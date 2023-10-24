@@ -41,3 +41,5 @@ vi .env
 // ami build check -2 
 // ami buid check -3 4
 
+changed env config for autostart 
+
