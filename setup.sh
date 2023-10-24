@@ -72,5 +72,4 @@ sudo chown webappuser:webappgroup /var/log/webapp.log
 
 sudo chmod 644 /var/log/webapp.log
 sudo chmod 600 /home/admin/WebApp/.env
-has context menu
 
