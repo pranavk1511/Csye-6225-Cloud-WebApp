@@ -41,6 +41,7 @@ sudo chmod -R 750 /home/webappuser
 
 # Set ownership and permissions for the app.js file in admin's directory
 sudo chown webappuser:webappgroup /home/admin/WebApp
+sudo chmod 750 /home/admin/WebApp
 sudo chown webappuser:webappgroup /home/admin/WebApp/app.js
 sudo chmod 750 /home/admin/WebApp/app.js
 
