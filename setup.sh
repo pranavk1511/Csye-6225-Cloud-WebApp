@@ -22,16 +22,8 @@ sudo DEBIAN_FRONTEND=noninteractive apt install -y unzip
 sudo unzip WebAppRenamed -d WebApp
 
 
-
-
-# Exit MySQL shell
-sudo mysql --execute="EXIT;"
-
 # Uninstall git 
 sudo apt-get remove -y git
-
-
-
 
 
 # Setting up new User
@@ -39,10 +31,8 @@ sudo apt-get remove -y git
 sudo useradd -m webappuser
 sudo groupadd webappgroup
 
-
-# Add webappuser and admin to the webappgroup
+# Add webappuser to the webappgroup
 sudo usermod -aG webappgroup webappuser
-sudo usermod -aG webappgroup admin
 
 # Set ownership and permissions for webappuser's home directory
 sudo chown -R webappuser:webappgroup /home/webappuser
@@ -50,6 +40,7 @@ sudo chmod -R 750 /home/webappuser
 
 
 # Set ownership and permissions for the app.js file in admin's directory
+sudo chown webappuser:webappgroup /home/admin/WebApp
 sudo chown webappuser:webappgroup /home/admin/WebApp/app.js
 sudo chmod 750 /home/admin/WebApp/app.js
 
