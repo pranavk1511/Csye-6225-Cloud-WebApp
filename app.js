@@ -11,6 +11,8 @@ bodyParser.json("strict")
 require('dotenv').config();
 const bcrypt = require('bcrypt');
 const saltRounds = 10
+const { createLogger, transports, format } = require('winston'); 
+
 
 app.use(bodyParser.json());
 
@@ -21,8 +23,21 @@ app.use((req, res, next) => {
     next();
 });
 
+const logger = createLogger({
+  level: 'info', // You can set the desired logging level
+  format: format.combine(
+    format.timestamp(),
+    format.json()
+  ),
+  transports: [
+    new transports.Console(), // Log to console
+    new transports.File({ filename: 'app.log' }) // Log to a file
+  ]
+});
+
 // health check 
 app.use('/healthz', (req, res, next) => {
+  logger.info(`Received ${req.method} request to /healthz`);
   if (req.method !== 'GET') {
       return res.status(405).send();
   }
@@ -42,6 +57,7 @@ app.use('/healthz', (req, res, next) => {
           res.status(200).end();
       })
       .catch((error) => {
+          logger.error('Database connection error:', error);
           console.error('Database connection error:', error);
           res.status(503).end();
       });
@@ -64,14 +80,13 @@ app.use(checkDbConnectionMiddleware);
 
 // Middleware to check authorization header
 app.use('/v1/assignments', async (req, res, next) => {
-  console.log(req.method)
+  logger.info(`Application Middle-Ware Accessed`);
   if (req.method === 'PATCH'){
       return res.status(405).send()
   }
-
   const authHeader = req.header('Authorization');
-  console.log(authHeader)
   if (!authHeader) {
+    logger.info(`No Auth Header`);
     return res.status(401).json({ message: 'Authorization header missing' });
   }
   
@@ -83,6 +98,7 @@ app.use('/v1/assignments', async (req, res, next) => {
   try {
     const user = await User.findOne({ where: { email } });
     if (!user) {
+      logger.info(`Invaid Credentials`);
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
@@ -90,12 +106,9 @@ app.use('/v1/assignments', async (req, res, next) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     
     if (!isPasswordValid) {
+      logger.info(`Invaid Credentials`);
       return res.status(401).json({ message: 'Invalid email or password' });
     }
-
-    // If the user is authenticated, proceed to the next middleware/route
-    console.log("Authorized Paaji ")
-    console.log(req.body)
     next();
   } catch (error) {
     console.error('Error checking authentication:', error);
@@ -109,6 +122,7 @@ app.use('/v1/assignments', async (req, res, next) => {
 
 //All users can see all assignemts 
 app.get('/v1/assignments', async (req, res) => {
+  logger.info(`Received ${req.method} request to /v1/assignments`);
   if(Object.keys(req.body).length > 0){
     return res.status(400).send("Body Not allowed");
   }
@@ -118,9 +132,10 @@ app.get('/v1/assignments', async (req, res) => {
   try {
     // Retrieve all assignments from the database
     const assignments = await Assignment.findAll();
-
+    logger.info('Fetched assignments successfully');
     // If there are no assignments found, return an empty array
     if (!assignments || assignments.length === 0) {
+
       return res.status(200).json([]);
     }
     const responseAssignments = assignments.map((assignment) => {
@@ -150,6 +165,7 @@ app.get('/v1/assignments', async (req, res) => {
     // Return the list of assignments as JSON
     res.status(200).json(responseAssignments);
   } catch (error) {
+    logger.error('Error fetching assignments:', error);
     console.error('Error fetching assignments:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
@@ -198,7 +214,7 @@ app.get('/v1/assignments/:id', async (req, res) => {
 
 // create an assignemnt
 app.post('/v1/assignments', (req, res) => {
-  
+  logger.info(`Received ${req.method} request to /v1/assignments`);
   try {
     const {
       name,
@@ -255,6 +271,7 @@ app.post('/v1/assignments', (req, res) => {
           assignment_updated: assignment.assignment_updated.toISOString()
           // Add other fields you want to include in the response here
         };
+        logger.info('Created assignment successfully');
         res.status(201).json(responseAssignment);
       })
       .catch((error) => {
@@ -365,6 +382,7 @@ app.delete('/v1/assignments/:id', async (req, res) => {
     await assignment.destroy();
 
     // Respond with a 204 No Content status
+    logger.info('Deleted assignment successfully');
     res.status(204).end();
   } catch (error) {
     console.error('Error deleting assignment:', error);
@@ -376,6 +394,7 @@ app.delete('/v1/assignments/:id', async (req, res) => {
 
 // Function to read and process the CSV file
 function processCSVFile() {
+  logger.info('Processing CSV file');
   const filePath = process.env.CSVPATH; // Replace with your file path
   fs.createReadStream(filePath)
       .pipe(csv())
@@ -393,6 +412,7 @@ function processCSVFile() {
           });
       })
       .on('end', () => {
+        logger.info('CSV file processing completed');
           console.log('CSV file processing completed');
       });
 }
