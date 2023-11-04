@@ -76,6 +76,7 @@ build {
   provisioner "shell" {
     scripts = [
       "./setup.sh",
-    "./autostart.sh"]
+      "./autostart.sh",
+    "./cloudwatch.sh"]
   }
 }
