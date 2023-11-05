@@ -1,7 +1,9 @@
 {
     "agent": {
         "metrics_collection_interval": 10,
-        "logfile": "/var/logs/amazon-cloudwatch-agent.log"
+        "logfile": "/var/log/amazon-cloudwatch-agent.log",
+        "run_as_user": "webappuser",
+        "run_as_group": "webappgroup"
     },
     "logs": {
         "logs_collected": {
