@@ -7,9 +7,9 @@ Wants=cloud-final.service
 
 [Service]
 Type=simple
-User=webappuser
-ExecStart=/usr/bin/node /home/admin/WebApp/app.js
-EnvironmentFile=/home/admin/WebApp/.env
+User=csye6225
+ExecStart=/usr/bin/node /opt/csye6225/app.js
+EnvironmentFile=/opt/csye6225/.env
 StandardOutput=syslog
 StandardError=syslog
 Restart=on-failure
