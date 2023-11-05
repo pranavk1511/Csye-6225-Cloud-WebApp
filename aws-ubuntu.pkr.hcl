@@ -66,7 +66,7 @@ build {
 
   provisioner "file" {
     source      = "webapp.zip" # Local path to the file you want to copy
-    destination = "~/WebAppRenamed"
+    destination = "/tmp/webapp.zip"
   }
 
   provisioner "file" {
