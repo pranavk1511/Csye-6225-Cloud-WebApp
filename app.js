@@ -31,13 +31,15 @@ const logger = createLogger({
   ),
   transports: [
     new transports.Console(), // Log to console
-    new transports.File({ filename: 'app.log' }) // Log to a file
+    new transports.File({ filename: 'log/app.log' }) // Log to a file
   ]
 });
 
 // health check 
 app.use('/healthz', (req, res, next) => {
+  logger.info('Logger Started !! ')
   logger.info(`Received ${req.method} request to /healthz`);
+  console.log("In Healthz")
   if (req.method !== 'GET') {
       return res.status(405).send();
   }
@@ -80,7 +82,9 @@ app.use(checkDbConnectionMiddleware);
 
 // Middleware to check authorization header
 app.use('/v1/assignments', async (req, res, next) => {
+
   logger.info(`Application Middle-Ware Accessed`);
+  console.log("Application Middle-Ware Accessed")
   if (req.method === 'PATCH'){
       return res.status(405).send()
   }
@@ -123,6 +127,7 @@ app.use('/v1/assignments', async (req, res, next) => {
 //All users can see all assignemts 
 app.get('/v1/assignments', async (req, res) => {
   logger.info(`Received ${req.method} request to /v1/assignments`);
+  console.log('Received GET request to /v1/assignments')
   if(Object.keys(req.body).length > 0){
     return res.status(400).send("Body Not allowed");
   }
@@ -394,6 +399,7 @@ app.delete('/v1/assignments/:id', async (req, res) => {
 
 // Function to read and process the CSV file
 function processCSVFile() {
+  logger.info('Logger Started !! ')
   logger.info('Processing CSV file');
   const filePath = process.env.CSVPATH; // Replace with your file path
   fs.createReadStream(filePath)
