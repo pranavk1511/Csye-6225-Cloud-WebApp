@@ -1,20 +1,15 @@
 [Unit]
-Description=REST API service
-After=cloud-final.service
-Wants=cloud-final.service
-
+Description=Your Node.js Application
+After=network.target cloud-init.service
+Wants=cloud-init.service
  
-
 [Service]
+EnvironmentFile=/opt/csye6225/.env
 Type=simple
 User=csye6225
 ExecStart=/usr/bin/node /opt/csye6225/app.js
-EnvironmentFile=/opt/csye6225/.env
-StandardOutput=syslog
-StandardError=syslog
-Restart=on-failure
-
+Restart=always
+WorkingDirectory=/opt/csye6225/
  
-
 [Install]
 WantedBy=cloud-init.target
