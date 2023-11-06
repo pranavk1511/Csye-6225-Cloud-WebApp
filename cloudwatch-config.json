@@ -1,16 +1,14 @@
 {
     "agent": {
         "metrics_collection_interval": 10,
-        "logfile": "/var/log/amazon-cloudwatch-agent.log",
-        "run_as_user": "webappuser",
-        "run_as_group": "webappgroup"
+        "logfile": "/var/log/amazon-cloudwatch-agent.log"
     },
     "logs": {
         "logs_collected": {
             "files": {
                 "collect_list": [
                     {
-                        "file_path": "/home/admin/WebApp/log/app.log",
+                        "file_path": "/opt/csye6225/log/app.log",
                         "log_group_name": "webapp",
                         "log_stream_name": "webapp"
                     }

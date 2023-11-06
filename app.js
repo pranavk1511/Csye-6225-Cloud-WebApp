@@ -12,7 +12,7 @@ require('dotenv').config();
 const bcrypt = require('bcrypt');
 const saltRounds = 10
 const { createLogger, transports, format } = require('winston'); 
-
+const appRoot = require('app-root-path');
 
 app.use(bodyParser.json());
 
@@ -31,7 +31,7 @@ const logger = createLogger({
   ),
   transports: [
     new transports.Console(), // Log to console
-    new transports.File({ filename: 'log/app.log' }) // Log to a file
+    new transports.File({ filename: `${appRoot.path}/log/app.log` }) // Log to a file
   ]
 });
 
