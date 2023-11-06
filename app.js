@@ -11,17 +11,28 @@ bodyParser.json("strict")
 require('dotenv').config();
 const bcrypt = require('bcrypt');
 const saltRounds = 10
+const StatsD = require('node-statsd');
 const { createLogger, transports, format } = require('winston'); 
 const appRoot = require('app-root-path');
 
 app.use(bodyParser.json());
 
-
+const statsd = new StatsD({
+  host: 'localhost', // StatsD server host (usually 'localhost')
+  port: 8125, // StatsD server port (must match your configuration)
+});
 // set headers as per req
 app.use((req, res, next) => {
     res.setHeader('Cache-Control', 'no-cache');
     next();
 });
+
+app.use((req, res, next) => {
+  const apiPath = req.path; 
+  statsd.increment(`api.${apiPath}.count`);
+  next();
+});
+
 
 const logger = createLogger({
   level: 'info', // You can set the desired logging level
