@@ -10,7 +10,7 @@
                     {
                         "file_path": "/opt/csye6225/log/app.log",
                         "log_group_name": "csye6225",
-                        "log_group_name": "webapp",
+                        "log_stream_name": "webapp"
                     }
                 ]
             }
