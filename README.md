@@ -49,3 +49,5 @@ changed env config for autostart
 
 // Ami build for route 53
 
+// Canvas download check for demo - build ami 
+
