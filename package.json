@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "app-root-path": "^3.1.0",
+    "aws-sdk": "^2.1500.0",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "chai": "^4.3.10",
@@ -28,6 +29,7 @@
     "sequelize": "^6.33.0",
     "statsd": "^0.9.0",
     "statsd-client": "^0.4.7",
+    "valid-url": "^1.0.9",
     "winston": "^3.11.0"
   }
 }
