@@ -1,27 +1,52 @@
+// node-dependecies
 const express = require('express');
-const app = express();
-const PORT = 3000;
-const Assignment = require('./model/assignment_model');
-const User = require('./model/user_model')
-const sequelize = require('./model/database');
-const fs = require('fs');
+const validUrl = require('valid-url');
 const csv = require('csv-parser');
 const bodyParser = require('body-parser');
 bodyParser.json("strict")
-require('dotenv').config();
-const bcrypt = require('bcrypt');
-const saltRounds = 10
 const StatsD = require('node-statsd');
+const bcrypt = require('bcrypt');
+const fs = require('fs');
 const { createLogger, transports, format } = require('winston'); 
 const appRoot = require('app-root-path');
+const { Op } = require('sequelize');
+const AWS = require('aws-sdk');
+
+
+
+const app = express();
+const PORT = 3000;
+
+const Assignment = require('./model/assignment_model');
+const User = require('./model/user_model')
+const sequelize = require('./model/database');
+const Submission = require('./model/submission');
+
+
+AWS.config.update({
+  accessKeyId: process.env.accessKeyId,
+  secretAccessKey: process.env.secretAccessKey,
+  region: process.env.region,
+});
+
+
+const sns = new AWS.SNS();
+const topicArn = process.env.topicarn;
+
+
+
+require('dotenv').config();
+
+const saltRounds = 10
 
 app.use(bodyParser.json());
 
 const statsd = new StatsD({
-  host: 'localhost', // StatsD server host (usually 'localhost')
-  port: 8125, // StatsD server port (must match your configuration)
+  host: 'localhost', 
+  port: 8125, 
 });
-// set headers as per req
+
+
 app.use((req, res, next) => {
     res.setHeader('Cache-Control', 'no-cache');
     next();
@@ -95,7 +120,6 @@ app.use(checkDbConnectionMiddleware);
 app.use('/v1/assignments', async (req, res, next) => {
 
   logger.info(`Application Middle-Ware Accessed`);
-  console.log("Application Middle-Ware Accessed")
   if (req.method === 'PATCH'){
       return res.status(405).send()
   }
@@ -434,8 +458,88 @@ function processCSVFile() {
       });
 }
 
+// Add new endpoint for assignment submission
+app.use('/v1/assignments/:id/submission', async (req, res) => {
+  try {
+    // Check if the request is a POST request
+    if (req.method !== 'POST') {
+      return res.status(405).json({ message: 'Method Not Allowed' });
+    }
 
-//CI Check
+    const assignmentId = req.params.id; // Get the assignment ID from the URL parameter
+    const { submission_url } = req.body;
+    if (!assignmentId) {
+      return res.status(400).json({ message: 'Assignment ID is required in the URL' });
+    }
+    // Validate the request body fields
+    if (!submission_url || typeof submission_url !== 'string') {
+      return res.status(400).json({ message: 'Invalid submission_url' });
+    }
+    if (!validUrl.isUri(submission_url)) {
+      return res.status(400).json({ message: 'Invalid submission URL format' });
+    }
+    // Check if the assignment exists
+    const assignment = await Assignment.findOne({ where: { id: assignmentId } });
+
+    if (!assignment) {
+      return res.status(404).json({ message: 'Assignment not found' });
+    }
+      // Check if the user making the request is the owner of the assignment
+    const authHeader = req.header('Authorization');
+    const authData = Buffer.from(authHeader.split(' ')[1], 'base64').toString('utf-8');
+    const [email, password] = authData.split(':');
+
+    if (assignment.createdByUserId !== email) {
+      return res.status(403).json({ message: 'Permission denied. You are not the owner of this assignment.' });
+    }
+    // Check if the user has exceeded the number of allowed attempts
+    const existingSubmissions = await Submission.count({
+      where: {
+        assignment_id: assignmentId,
+        submission_date: {
+          [Op.lt]: new Date(), // Count only submissions before the current date
+        },
+      },
+    });
+
+    if (existingSubmissions >= assignment.num_of_attempts) {
+      return res.status(400).json({ message: 'Maximum number of attempts reached for this assignment.' });
+    }
+    if (new Date() > new Date(assignment.deadline)) {
+      return res.status(403).json({ message: 'Assignment submission after the deadline is forbidden.' });
+    }
+    // Create a submission record
+    const submission = await Submission.create({
+      assignment_id: assignmentId,
+      submission_url,
+      submission_date: new Date().toISOString(),
+      assignment_updated: new Date().toISOString()
+    });
+    // Return the submission details in the response
+    const responseSubmission = {
+      id: submission.id,
+      assignment_id: submission.assignment_id,
+      submission_url: submission.submission_url,
+      submission_date: submission.submission_date,
+      assignment_updated: assignment.assignment_updated.toISOString(),
+    };
+    res.status(201).json(responseSubmission);
+
+    const snsParams = {
+      Message: JSON.stringify({ email: email }),
+      TopicArn: topicArn,
+    };
+    console.log("ARN Is ",topicArn)
+    await sns.publish(snsParams).promise();
+    logger.info(`ParaMeter Published ! `);
+
+  } catch (error) {
+    console.error('Error submitting assignment:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
 // Sync the database and create tables
 
 sequelize.sync().then(() => {  
