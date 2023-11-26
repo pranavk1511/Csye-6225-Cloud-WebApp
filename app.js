@@ -30,7 +30,7 @@ const Submission = require('./model/submission');
 // });
 
 
-const sns = new AWS.SNS();
+const sns = new AWS.SNS({ region:process.env.region });
 const topicArn = process.env.topicarn;
 
 
@@ -529,7 +529,9 @@ app.use('/v1/assignments/:id/submission', async (req, res) => {
       Message: JSON.stringify({ email, submission_url}),
       TopicArn: topicArn,
     };
-    console.log("ARN Is ",topicArn)
+
+    logger.info("ARN Is ",topicArn)
+
     await sns.publish(snsParams).promise();
     logger.info(`ParaMeter Published ! `);
 
