@@ -526,7 +526,7 @@ app.use('/v1/assignments/:id/submission', async (req, res) => {
     res.status(201).json(responseSubmission);
 
     const snsParams = {
-      Message: JSON.stringify({ email, submission_url}),
+      Message: JSON.stringify({ email, submission_url,assignmentId}),
       TopicArn: topicArn,
     };
 
