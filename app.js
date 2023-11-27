@@ -523,10 +523,13 @@ app.use('/v1/assignments/:id/submission', async (req, res) => {
       submission_date: submission.submission_date,
       assignment_updated: assignment.assignment_updated.toISOString(),
     };
-    res.status(201).json(responseSubmission);
-
+    
     const snsParams = {
-      Message: JSON.stringify({ email, submission_url,assignmentId}),
+      Message: JSON.stringify({ 
+        email,
+        submission_url,
+        assignmentId
+      }),
       TopicArn: topicArn,
     };
 
@@ -534,7 +537,7 @@ app.use('/v1/assignments/:id/submission', async (req, res) => {
 
     await sns.publish(snsParams).promise();
     logger.info(`ParaMeter Published ! `);
-
+    res.status(201).json(responseSubmission);
   } catch (error) {
     console.error('Error submitting assignment:', error);
     res.status(500).json({ message: 'Internal server error' });
