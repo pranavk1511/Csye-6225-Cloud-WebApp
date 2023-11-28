@@ -531,6 +531,7 @@ app.use('/v1/assignments/:id/submission', async (req, res) => {
       submission_updated: submission.submission_updated
     };
 
+
     const snsParams = {
       Message: JSON.stringify({
         email,
