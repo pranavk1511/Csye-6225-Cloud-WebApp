@@ -23,11 +23,11 @@ const sequelize = require('./model/database');
 const Submission = require('./model/submission');
 
 
-AWS.config.update({
-  accessKeyId: process.env.accessKeyId,
-  secretAccessKey: process.env.secretAccessKey,
-  region: process.env.region,
-});
+// AWS.config.update({
+//   accessKeyId: process.env.accessKeyId,
+//   secretAccessKey: process.env.secretAccessKey,
+//   region: process.env.region,
+// });
 
 
 const sns = new AWS.SNS({ region:process.env.region });
