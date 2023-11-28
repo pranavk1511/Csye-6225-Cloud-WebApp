@@ -266,7 +266,9 @@ app.post('/v1/assignments', (req, res) => {
     if (Object.keys(req.body).length === 0) {
       return res.status(400).json({ message: 'Request body cannot be empty' });
     }
-
+    if (Object.keys(req.body).length !== 4) {
+      return res.status(400).json({ message: 'Bad Testing Error ' });
+    }
     // Validate the request body fields (you can add more validation here)
     if (!name || typeof name !== 'string' || !points || isNaN(points)) {
       return res.status(400).json({ message: 'Invalid Name or Points' });
@@ -374,6 +376,11 @@ app.put('/v1/assignments/:id', async (req, res) => {
       return res.status(403).json({ message: 'Permission denied. You are not the owner of this assignment.' });
     }
     
+    const submissionCount = await Submission.count({ where: { assignment_id: assignmentId } });
+
+    if (submissionCount > 0) {
+      return res.status(400).json({ message: 'Cannot update assignment with associated submissions.' });
+    }
     // Update the assignment fields
     assignment.name = name;
     assignment.points = points;
@@ -477,9 +484,16 @@ app.use('/v1/assignments/:id/submission', async (req, res) => {
 
     const assignmentId = req.params.id; // Get the assignment ID from the URL parameter
     const { submission_url } = req.body;
+    if (Object.keys(req.query).length > 0) {
+      return res.status(400).json({ message: 'Query parameters are not allowed' });
+    }
     if (!assignmentId) {
       return res.status(400).json({ message: 'Assignment ID is required in the URL' });
     }
+    if (Object.keys(req.body).length !== 1) {
+      return res.status(400).json({ message: 'Bad Testing Error  !!' });
+    }
+
     // Validate the request body fields
     if (!submission_url || typeof submission_url !== 'string') {
       return res.status(400).json({ message: 'Invalid submission_url' });
