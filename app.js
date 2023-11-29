@@ -498,7 +498,7 @@ app.use('/v1/assignments/:id/submission', async (req, res) => {
     if (!submission_url || typeof submission_url !== 'string') {
       return res.status(400).json({ message: 'Invalid submission_url' });
     }
-    if (!validUrl.isUri(submission_url)) {
+    if (!validUrl.isUri(submission_url) || !submission_url.endsWith('.zip')) {
       return res.status(400).json({ message: 'Invalid submission URL format' });
     }
     // Check if the assignment exists
