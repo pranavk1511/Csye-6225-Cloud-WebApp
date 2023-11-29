@@ -154,7 +154,6 @@ app.use('/v1/assignments', async (req, res, next) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
-
 // app.get('/v1/assignments/', async (req, res, next) => {
 //   return res.status(405).send()
 // });
