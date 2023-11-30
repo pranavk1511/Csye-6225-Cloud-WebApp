@@ -331,6 +331,9 @@ app.put('/v1/assignments/:id', async (req, res) => {
   if (Object.keys(req.query).length > 0 ) {
     return res.status(400).send("URL Parameters not allowed ");
   }
+  if (Object.keys(req.body).length > 4) {
+    return res.status(400).send("Invalid Body ");
+  }
   try {
     const assignmentId = req.params.id; // Get the assignment ID from the URL parameter
     const {
