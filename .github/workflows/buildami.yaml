@@ -71,10 +71,10 @@ jobs:
       
       - name: Update Launch Template
         run: |
-        aws ec2 create-launch-template-version \
-        --launch-template-name webAppLaunchTemplate \
-        --version-description "Updated version with latest AMI" \
-        --source-version ${{ env.AMI_ID }}
+          aws ec2 create-launch-template-version \
+          --launch-template-name webAppLaunchTemplate \
+          --version-description "Updated version with latest AMI" \
+          --source-version ${{ env.AMI_ID }}
 
       - name: Update Autoscaling Group
         run: |
