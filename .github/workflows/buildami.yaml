@@ -54,25 +54,20 @@ jobs:
       - name: Initialize Packer
         run: packer init aws-ubuntu.pkr.hcl
 
-      - name: Build AMI
+      - name: Build AMI in dev account 
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: packer build aws-ubuntu.pkr.hcl
+        run: |
+          AMI_ID=$(packer build -machine-readable aws-ubuntu.pkr.hcl | awk -F, '$0 ~/artifact,0,id/ {print $6}')
+          echo "Latest AMI ID: $AMI_ID"
+          echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
 
       - name: Configure AWS CLI for Demo Account
         run: |
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID_DEMO }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY_DEMO }}
           aws configure set region ${{ secrets.AWS_REGION_DEMO}}
-
-      - name: Get latest AMI ID
-        id: get_ami
-        run: |
-          AMI_ID=$(grep -E -o 'ami-.{8}' aws-ubuntu-output.log)
-          echo "Latest AMI ID: $AMI_ID"
-          echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
-        shell: bash
       
       - name: Update Launch Template
         run: |
