@@ -76,7 +76,7 @@ jobs:
       - name: Get Auto Scaling Group Name
         id: auto-scaling-group
         run: |
-          auto_scaling_group_name=$(aws autoscaling describe-auto-scaling-groups --query 'AutoScalingGroups | sort_by([],[&AutoScalingGroupName]) | [-1].AutoScalingGroupName' --output text)
+          auto_scaling_group_name=$(aws autoscaling describe-auto-scaling-groups --query 'AutoScalingGroups | sort_by(@, &AutoScalingGroupName) | [-1].AutoScalingGroupName' --output text)
           echo "Auto Scaling Group Name: $auto_scaling_group_name"
           echo "::set-output name=auto_scaling_group::$auto_scaling_group_name"
 
