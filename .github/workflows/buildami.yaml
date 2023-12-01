@@ -69,7 +69,7 @@ jobs:
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY_DEMO }}
           aws configure set region ${{ secrets.AWS_REGION_DEMO}}
       
-      - name: Update Launch Template
+      - name: Create New Version of Launch Template
         run: |
           AMI_ID=${{ env.AMI_ID }}
           aws ec2 modify-launch-template \
