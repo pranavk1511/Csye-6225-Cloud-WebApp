@@ -50,6 +50,9 @@ jobs:
           chmod +x packer
           sudo mv packer /usr/local/bin/
         shell: bash
+        
+      - name: Initialize Packer
+        run: packer init aws-ubuntu.pkr.hcl
 
       - name: Build AMI
         env:
