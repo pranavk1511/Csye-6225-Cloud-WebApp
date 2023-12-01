@@ -69,27 +69,9 @@ jobs:
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY_DEMO }}
           aws configure set region ${{ secrets.AWS_REGION_DEMO}}
       
-      - name: Create New Version of Launch Template
+      - name: Update Launch Template
         run: |
           AMI_ID=${{ env.AMI_ID }}
-          new_version=$(
-            aws ec2 create-launch-template-version \
-              --launch-template-name webAppLaunchTemplate \
-              --source-version default \
-              --version-description "Update AMI" \
-              --launch-template-data "{\"imageId\": \"${AMI_ID}\"}" \
-              --output json \
-              --query 'VersionNumber'
-          )
-          echo "New version created: $new_version"
-          echo "NEW_LAUNCH_TEMPLATE_VERSION=$new_version" >> $GITHUB_ENV
-
-      - name: Instance Refresh Auto Scaling Group
-        run: |
-          # NEW_LAUNCH_TEMPLATE_VERSION is the environment variable set in the previous step
-          aws autoscaling start-instance-refresh \
-            --auto-scaling-group-name webAppAutoScalingGroup \
-            --preferences MinHealthyPercentage=80 \
-            --strategy Rolling \
-            --version ${NEW_LAUNCH_TEMPLATE_VERSION}
-
+          aws ec2 modify-launch-template \
+           --launch-template-name webAppLaunchTemplate \
+           --default-version $AMI_ID
