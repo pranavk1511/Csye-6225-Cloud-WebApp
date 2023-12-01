@@ -65,6 +65,7 @@ jobs:
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID_DEMO }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY_DEMO }}
           aws configure set region ${{ secrets.AWS_REGION_DEMO}}
+
       - name: Get latest AMI ID
         id: get_ami
         run: |
@@ -101,6 +102,3 @@ jobs:
           aws autoscaling start-instance-refresh \
             --auto-scaling-group-name webAppAutoScalingGroup \
             --preferences MinHealthyPercentage=50
-
-      
-
