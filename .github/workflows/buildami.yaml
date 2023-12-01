@@ -69,9 +69,9 @@ jobs:
       - name: Get latest AMI ID
         id: get_ami
         run: |
-        AMI_ID=$(grep -E -o 'ami-.{8}' aws-ubuntu-output.log)
-        echo "Latest AMI ID: $AMI_ID"
-        echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
+          AMI_ID=$(grep -E -o 'ami-.{8}' aws-ubuntu-output.log)
+          echo "Latest AMI ID: $AMI_ID"
+          echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
         shell: bash
       
       - name: Update Launch Template
