@@ -76,19 +76,21 @@ jobs:
       - name: Get Auto Scaling Group Name
         id: auto-scaling-group
         run: |
-          auto_scaling_group_name=$(aws autoscaling describe-auto-scaling-groups --query 'AutoScalingGroups | sort_by(AutoScalingGroupName) | [-1].AutoScalingGroupName' --output text)
+          auto_scaling_group_name=$(aws autoscaling describe-auto-scaling-groups --query 'AutoScalingGroups | sort_by([],[&AutoScalingGroupName]) | [-1].AutoScalingGroupName' --output text)
           echo "Auto Scaling Group Name: $auto_scaling_group_name"
           echo "::set-output name=auto_scaling_group::$auto_scaling_group_name"
 
       - name: Create Launch Template Version
         run: |
           latest_ami_id=$(aws ec2 describe-images --filters "Name=name,Values=webapp*" --query 'Images | [0].ImageId' --output text)
-          aws ec2 create-launch-template-version --launch-template-name ${{ steps.launch-template.outputs.launch_template }} --version-description "Updated AMI" --source-version $latest_ami_id
+          latest_launch_template_name="${{ steps.launch-template.outputs.launch_template }}"
+          aws ec2 create-launch-template-version --launch-template-name $latest_launch_template_name --version-description "Updated AMI" --source-version $latest_ami_id
+
 
       - name: Instance Refresh
         run: |
           launch_template_id=$(aws ec2 describe-launch-templates --launch-template-names ${{ steps.launch-template.outputs.launch_template }} --query 'LaunchTemplates[0].LaunchTemplateId' --output text)
-          aws autoscaling start-instance-refresh --auto-scaling-group-name ${{ steps.auto-scaling-group.outputs.auto_scaling_group }} --strategy Rolling --preferences "MinHealthyPercentage=100, InstanceWarmup=300, PauseTime=PT0M" --launch-template "LaunchTemplateId=$launch_template_id, Version=latest"
+          aws autoscaling start-instance-refresh --auto-scaling-group-name ${{ steps.auto-scaling-group.outputs.auto_scaling_group }} --strategy Rolling --preferences "MinHealthyPercentage=100, InstanceWarmup=300, PauseTime=PT0M" --launch-template "LaunchTemplateId=$launch_template_id,Version=latest"
 
       - name: Wait for Instance Refresh
         run: |
