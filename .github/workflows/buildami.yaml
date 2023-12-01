@@ -89,7 +89,8 @@ jobs:
             --launch-template-name $latest_launch_template_name \
             --version-description "Updated AMI" \
             --source-version $latest_ami_id \
-            --launch-template-data "$launch_template_data"
+            --launch-template-data "$launch_template_data" \
+            --output json
 
 
       - name: Instance Refresh
