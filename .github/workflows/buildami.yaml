@@ -84,7 +84,12 @@ jobs:
         run: |
           latest_ami_id=$(aws ec2 describe-images --filters "Name=name,Values=webapp*" --query 'Images | [0].ImageId' --output text)
           latest_launch_template_name="${{ steps.launch-template.outputs.launch_template }}"
-          aws ec2 create-launch-template-version --launch-template-name $latest_launch_template_name --version-description "Updated AMI" --source-version $latest_ami_id
+          launch_template_data=$(aws ec2 describe-launch-templates --launch-template-names $latest_launch_template_name --query 'LaunchTemplates[0].LaunchTemplateData' --output json)
+          aws ec2 create-launch-template-version \
+            --launch-template-name $latest_launch_template_name \
+            --version-description "Updated AMI" \
+            --source-version $latest_ami_id \
+            --launch-template-data "$launch_template_data"
 
 
       - name: Instance Refresh
