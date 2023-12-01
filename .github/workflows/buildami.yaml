@@ -69,7 +69,7 @@ jobs:
       - name: Get Latest Launch Template Name
         id: launch-template
         run: |
-          latest_launch_template_name=$(aws ec2 describe-launch-templates --query 'LaunchTemplates | sort_by(LaunchTemplateName) | [-1].LaunchTemplateName' --output text)
+          latest_launch_template_name=$(aws ec2 describe-launch-templates --query 'LaunchTemplates | sort_by([], &LaunchTemplateName) | [-1].LaunchTemplateName' --output text)
           echo "Latest Launch Template Name: $latest_launch_template_name"
           echo "::set-output name=launch_template::$latest_launch_template_name"
 
