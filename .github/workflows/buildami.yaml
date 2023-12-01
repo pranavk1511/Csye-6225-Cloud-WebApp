@@ -1,6 +1,6 @@
-name: Build AMI
+name: Build AMI and Deploy
 
-on :
+on:
   push:
     branches:
       - main
@@ -27,17 +27,17 @@ jobs:
           echo "region=${{secrets.region}}">>.env
           echo "topicarn=${{secrets.topicarn}}">>.env
           cat .env 
-          
-      - name: configuremysql
+
+      - name: Configure MySQL
         run: |
           sudo apt-get update
           sudo apt-get install -y curl
           sudo systemctl start mysql
           sudo systemctl status mysql
-          mysql -u root -p"${{ secrets.MY_SQL_PASSWORD }}" -e "CREATE DATABASE  Assignment3;"
+          mysql -u root -p"${{ secrets.MY_SQL_PASSWORD }}" -e "CREATE DATABASE Assignment3;"
 
       - name: Run Tests
-        run : npm test
+        run: npm test
 
       - name: Create Zip Archive
         run: |
@@ -51,13 +51,47 @@ jobs:
           sudo mv packer /usr/local/bin/
         shell: bash
 
-      - name: Initialize Packer
-        run: packer init aws-ubuntu.pkr.hcl
-
-    
       - name: Build AMI
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: packer build aws-ubuntu.pkr.hcl
 
+      - name: Configure AWS CLI for Target Account
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID_DEMO }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY_DEMO }}
+          aws configure set region ${{ secrets.AWS_REGION_DEMO}}
+          
+      - name: Get Latest Launch Template Name
+        id: launch-template
+        run: |
+          latest_launch_template_name=$(aws ec2 describe-launch-templates --query 'LaunchTemplates | sort_by(LaunchTemplateName) | [-1].LaunchTemplateName' --output text)
+          echo "Latest Launch Template Name: $latest_launch_template_name"
+          echo "::set-output name=launch_template::$latest_launch_template_name"
+
+      - name: Get Auto Scaling Group Name
+        id: auto-scaling-group
+        run: |
+          auto_scaling_group_name=$(aws autoscaling describe-auto-scaling-groups --query 'AutoScalingGroups | sort_by(AutoScalingGroupName) | [-1].AutoScalingGroupName' --output text)
+          echo "Auto Scaling Group Name: $auto_scaling_group_name"
+          echo "::set-output name=auto_scaling_group::$auto_scaling_group_name"
+
+      - name: Create Launch Template Version
+        run: |
+          latest_ami_id=$(aws ec2 describe-images --filters "Name=name,Values=webapp*" --query 'Images | [0].ImageId' --output text)
+          aws ec2 create-launch-template-version --launch-template-name ${{ steps.launch-template.outputs.launch_template }} --version-description "Updated AMI" --source-version $latest_ami_id
+
+      - name: Instance Refresh
+        run: |
+          launch_template_id=$(aws ec2 describe-launch-templates --launch-template-names ${{ steps.launch-template.outputs.launch_template }} --query 'LaunchTemplates[0].LaunchTemplateId' --output text)
+          aws autoscaling start-instance-refresh --auto-scaling-group-name ${{ steps.auto-scaling-group.outputs.auto_scaling_group }} --strategy Rolling --preferences "MinHealthyPercentage=100, InstanceWarmup=300, PauseTime=PT0M" --launch-template "LaunchTemplateId=$launch_template_id, Version=latest"
+
+      - name: Wait for Instance Refresh
+        run: |
+          refresh_status=""
+          while [ "$refresh_status" != "Successful" ]; do
+            refresh_status=$(aws autoscaling describe-instance-refreshes --auto-scaling-group-name ${{ steps.auto-scaling-group.outputs.auto_scaling_group }} --query 'InstanceRefreshes[0].Status' --output text)
+            sleep 60
+          done
+        timeout-minutes: 30
