@@ -65,3 +65,42 @@ jobs:
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID_DEMO }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY_DEMO }}
           aws configure set region ${{ secrets.AWS_REGION_DEMO}}
+      - name: Get latest AMI ID
+        id: get_ami
+        run: |
+        # Get the latest AMI ID from the Packer build output
+        AMI_ID=$(grep -E -o 'ami-.{8}' aws-ubuntu-output.log)
+        echo "Latest AMI ID: $AMI_ID"
+        echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
+        shell: bash
+      
+      - name: Update Launch Template
+        run: |
+        aws ec2 create-launch-template-version \
+        --launch-template-name webAppLaunchTemplate \
+        --version-description "Updated version with latest AMI" \
+        --source-version ${{ env.AMI_ID }}
+
+      - name: Update Autoscaling Group
+        run: |
+          aws autoscaling update-auto-scaling-group \
+            --auto-scaling-group-name webAppAutoScalingGroup \
+            --launch-template LaunchTemplateName=webAppLaunchTemplate,Version=1
+          VERSION_NUMBER=$(aws ec2 describe-launch-templates --launch-template-names webAppLaunchTemplate --query 'LaunchTemplates[0].VersionNumber' --output text)
+          echo "New Launch Template Version Number: $VERSION_NUMBER"
+          echo "VERSION_NUMBER=$VERSION_NUMBER" >> $GITHUB_ENV
+
+      - name: Update Autoscaling Group
+        run: |
+          aws autoscaling update-auto-scaling-group \
+            --auto-scaling-group-name webAppAutoScalingGroup \
+            --launch-template LaunchTemplateName=webAppLaunchTemplate,Version=$VERSION_NUMBER
+            
+      - name: Start Instance Refresh
+        run: |
+          aws autoscaling start-instance-refresh \
+            --auto-scaling-group-name webAppAutoScalingGroup \
+            --preferences MinHealthyPercentage=50
+
+      
+
