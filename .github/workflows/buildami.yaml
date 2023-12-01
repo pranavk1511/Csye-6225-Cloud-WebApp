@@ -69,32 +69,27 @@ jobs:
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY_DEMO }}
           aws configure set region ${{ secrets.AWS_REGION_DEMO}}
       
-      - name: Update Launch Template
+      - name: Create New Version of Launch Template
         run: |
           AMI_ID=${{ env.AMI_ID }}
-          aws ec2 create-launch-template-version \
-            --launch-template-name webAppLaunchTemplate \
-            --version-description "Updated version with latest AMI" \
-            --source-version $AMI_ID \
-            --launch-template-data "$(aws ec2 describe-launch-templates --launch-template-name webAppLaunchTemplate --query 'LaunchTemplates[0].LaunchTemplateData' --output json)"
+          new_version=$(
+            aws ec2 create-launch-template-version \
+              --launch-template-name webAppLaunchTemplate \
+              --source-version default \
+              --version-description "Update AMI" \
+              --launch-template-data "{\"imageId\": \"${AMI_ID}\"}" \
+              --output json \
+              --query 'VersionNumber'
+          )
+          echo "New version created: $new_version"
+          echo "NEW_LAUNCH_TEMPLATE_VERSION=$new_version" >> $GITHUB_ENV
 
-      - name: Update Autoscaling Group
+      - name: Instance Refresh Auto Scaling Group
         run: |
-          aws autoscaling update-auto-scaling-group \
-            --auto-scaling-group-name webAppAutoScalingGroup \
-            --launch-template LaunchTemplateName=webAppLaunchTemplate,Version=1
-          VERSION_NUMBER=$(aws ec2 describe-launch-templates --launch-template-names webAppLaunchTemplate --query 'LaunchTemplates[0].VersionNumber' --output text)
-          echo "New Launch Template Version Number: $VERSION_NUMBER"
-          echo "VERSION_NUMBER=$VERSION_NUMBER" >> $GITHUB_ENV
-
-      - name: Update Autoscaling Group
-        run: |
-          aws autoscaling update-auto-scaling-group \
-            --auto-scaling-group-name webAppAutoScalingGroup \
-            --launch-template LaunchTemplateName=webAppLaunchTemplate,Version=$VERSION_NUMBER
-            
-      - name: Start Instance Refresh
-        run: |
+          # NEW_LAUNCH_TEMPLATE_VERSION is the environment variable set in the previous step
           aws autoscaling start-instance-refresh \
             --auto-scaling-group-name webAppAutoScalingGroup \
-            --preferences MinHealthyPercentage=50
+            --preferences MinHealthyPercentage=80 \
+            --strategy Rolling \
+            --version ${NEW_LAUNCH_TEMPLATE_VERSION}
+
