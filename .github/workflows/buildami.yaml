@@ -54,13 +54,15 @@ jobs:
       - name: Initialize Packer
         run: packer init aws-ubuntu.pkr.hcl
 
-      - name: Build AMI in dev account 
+      - name: Build AMI in dev account
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         id: build
         run: |
-          packer build aws-ubuntu.pkr.hcl 
+          AMI_ID=$(packer build -machine-readable aws-ubuntu.pkr.hcl | awk -F, '$0 ~/artifact,0,id/ {print $6}')
+          echo "AMI_ID is =$AMI_ID" >> $GITHUB_ENV
+          echo "::set-output name=ami_id::$AMI_ID"
 
       - name: Configure AWS CLI for Demo Account
         run: |
@@ -73,10 +75,7 @@ jobs:
           sudo apt-get install jq
           ASG_NAME=webAppAutoScalingGroup
           LAUNCH_CONFIG=webAppLaunchTemplate
-          IMAGE=$(jq -r '.builds[-1].artifact_id' manifest.json | cut -d':' -f2)
-          IMAGE_ID=$(jq -n \
-            --arg img "$IMAGE" \
-            '{"ImageId": $img}')
+          IMAGE_ID=$(jq -n --arg img "${{ needs.build.outputs.ami_id }}" '{"ImageId": $img}')
           aws ec2 create-launch-template-version \
             --launch-template-name "$LAUNCH_CONFIG" \
             --version-description updateAMI --source-version 1 \
