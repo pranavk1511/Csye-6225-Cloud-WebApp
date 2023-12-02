@@ -63,7 +63,6 @@ jobs:
           AMI_ID=$(packer build -machine-readable aws-ubuntu.pkr.hcl | awk -F, '$0 ~/artifact,0,id/ {print $6}')
           echo "AMI_ID is =$AMI_ID" >> $GITHUB_ENV
           echo "::set-output name=ami_id::$AMI_ID"
-      
 
       - name: Configure AWS CLI for Demo Account
         run: |
