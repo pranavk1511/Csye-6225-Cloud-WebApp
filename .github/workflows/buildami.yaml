@@ -59,9 +59,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
-          AMI_ID=$(packer build -machine-readable aws-ubuntu.pkr.hcl | awk -F, '$0 ~/artifact,0,id/ {print $6}')
-          echo "Latest AMI ID: $AMI_ID"
-          echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
+          packer build -machine-readable aws-ubuntu.pkr.hcl 
 
       - name: Configure AWS CLI for Demo Account
         run: |
@@ -74,7 +72,10 @@ jobs:
           sudo apt-get install jq
           ASG_NAME=webAppAutoScalingGroup
           LAUNCH_CONFIG=webAppLaunchTemplate
-          IMAGE_ID=$(jq -n --arg img "$AMI_ID" '{"ImageId":$img | tostring}' | tr -d '"')
+          IMAGE=$(jq -r '.builds[-1].artifact_id' manifest.json | cut -d':' -f2)
+          IMAGE_ID=$(jq -n \
+            --arg img "$IMAGE" \
+            '{"ImageId": $img}')
           aws ec2 create-launch-template-version \
             --launch-template-name "$LAUNCH_CONFIG" \
             --version-description updateAMI --source-version 1 \
