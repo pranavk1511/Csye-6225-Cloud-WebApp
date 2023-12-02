@@ -58,8 +58,9 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        id: build
         run: |
-          packer build -machine-readable aws-ubuntu.pkr.hcl 
+          packer build aws-ubuntu.pkr.hcl 
 
       - name: Configure AWS CLI for Demo Account
         run: |
