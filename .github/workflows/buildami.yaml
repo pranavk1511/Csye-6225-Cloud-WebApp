@@ -75,9 +75,6 @@ jobs:
           ASG_NAME=webAppAutoScalingGroup
           LAUNCH_CONFIG=webAppLaunchTemplate
           IMAGE_ID=$(jq -n --arg img "$AMI_ID" '{"ImageId": $img}')
-          IMAGE_ID=$(jq -n \
-            --arg img "$IMAGE" \
-            '{"ImageId": $img}')
           aws ec2 create-launch-template-version \
             --launch-template-name "$LAUNCH_CONFIG" \
             --version-description updateAMI --source-version 1 \
