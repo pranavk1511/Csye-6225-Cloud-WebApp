@@ -74,7 +74,7 @@ jobs:
           sudo apt-get install jq
           ASG_NAME=webAppAutoScalingGroup
           LAUNCH_CONFIG=webAppLaunchTemplate
-          IMAGE_ID=$(jq -n --arg img "$AMI_ID" '{"ImageId":$img}' | tr -d '"')
+          IMAGE_ID=$(jq -n --arg img "$AMI_ID" '{"ImageId":$img | tostring}' | tr -d '"')
           aws ec2 create-launch-template-version \
             --launch-template-name "$LAUNCH_CONFIG" \
             --version-description updateAMI --source-version 1 \
