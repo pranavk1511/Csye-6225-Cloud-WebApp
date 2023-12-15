@@ -1,3 +1,7 @@
+
+[![Build AMI and Deploy](https://github.com/pranavk1511/Csye-6225-Cloud-WebApp/actions/workflows/buildami.yaml/badge.svg)](https://github.com/pranavk1511/Csye-6225-Cloud-WebApp/actions/workflows/buildami.yaml)
+
+
 # Assignment Management System 📚
 
 This Node.js application is an Assignment Management System that allows users to create, update, and delete assignments. It also supports assignment submissions with validation checks, such as the maximum number of attempts and submission deadlines. The system includes user authentication using basic HTTP authentication with email and password.
