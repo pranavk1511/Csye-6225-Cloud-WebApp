@@ -454,7 +454,7 @@ app.delete('/v1/assignments/:id', async (req, res) => {
 function processCSVFile() {
   logger.info('Logger Started !! ')
   logger.info('Processing CSV file');
-  const filePath = process.env.CSVPATH; // Replace with your file path
+  const filePath = process.env.CSVPATH ; // Replace with your file path
   fs.createReadStream(filePath)
       .pipe(csv())
       .on('data', async (row) => {
